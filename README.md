@@ -5,6 +5,8 @@ Since all classes have no external dependencies or depend on each other, feel fr
 
 #### Complete example
 
+Also see [Javadoc](https://dittmarsteiner.github.io/cooper/)
+
 ```Java
 // some defaults
 final int DEFAULT_NUMBER_OF_THREADS = Runtime.getRuntime().availableProcessors() * 4;
