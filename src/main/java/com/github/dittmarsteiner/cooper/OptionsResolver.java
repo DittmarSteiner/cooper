@@ -54,15 +54,15 @@ import java.util.stream.IntStream;
 public class OptionsResolver {
 
     // simply returns the Optional if the contained String is not empty
-    private static final Function<Optional<String>, Optional<String>> fnEnvString =
-            (o) -> o.isPresent() && !o.get().isEmpty() ? o : Optional.empty();
+    private static final Function<String, Optional<String>> fnEnvString =
+            (o) -> !o.isEmpty() ? Optional.of(o) : Optional.empty();
     //  wraps the String value into an Optional
     private static final Function<String, Optional<String>> fnArgsString =
             (v) -> !v.isEmpty() ? Optional.of(v) : Optional.empty();
 
     // returns true if Optional.get is anything but "false".
-    private static final Function<Optional<String>, Optional<Boolean>> fnEnvBoolean =
-            (v) -> Optional.of(!"false".equalsIgnoreCase(v.get()));
+    private static final Function<String, Optional<Boolean>> fnEnvBoolean =
+            (v) -> Optional.of(!"false".equalsIgnoreCase(v));
     // returns always true since it already passed matches(...)
     private static final Function<String, Optional<Boolean>> fnArgsBoolean =
             (v) -> Optional.of(true);
@@ -142,13 +142,11 @@ public class OptionsResolver {
     }
 
     static <T> Optional<T> resolve(String name, Character letter,
-            Function<Optional<String>, Optional<T>> fnEnv,
+            Function<String, Optional<T>> fnEnv,
             Function<String, Optional<T>> fnArgs, String... args) {
-        if (Objects.isNull(args)) {
-            return Optional.empty();
-        }
 
-        if (Objects.isNull(name) && Objects.isNull(letter)) {
+        if (Objects.isNull(args) || 
+                (Objects.isNull(name) && Objects.isNull(letter))) {
             return Optional.empty();
         }
 
@@ -159,7 +157,7 @@ public class OptionsResolver {
                     .stream().filter(Objects::nonNull).findFirst();
 
             if (value.isPresent()) {
-                return fnEnv.apply(value);
+                return fnEnv.apply(value.get());
             }
         }
 
