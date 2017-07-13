@@ -103,7 +103,7 @@ public class OptionsResolver {
      */
     public static Optional<String> resolve(String name, Character letter,
             String... args) {
-        return resolve(name, letter, fnEnvString, fnArgsString, args);
+        return resolve(name, letter, fnEnvString, fnArgsString, true, args);
     }
 
     /**
@@ -138,12 +138,13 @@ public class OptionsResolver {
      */
     public static Optional<Boolean> resolveFlag(String name, Character letter,
             String... args) {
-        return resolve(name, letter, fnEnvBoolean, fnArgsBoolean, args);
+        return resolve(name, letter, fnEnvBoolean, fnArgsBoolean, false, args);
     }
 
     static <T> Optional<T> resolve(String name, Character letter,
             Function<String, Optional<T>> fnEnv,
-            Function<String, Optional<T>> fnArgs, String... args) {
+            Function<String, Optional<T>> fnArgs, 
+            boolean hasValue, String... args) {
 
         if (Objects.isNull(args) || 
                 (Objects.isNull(name) && Objects.isNull(letter))) {
@@ -162,7 +163,6 @@ public class OptionsResolver {
         }
 
         // inspired by https://www.youtube.com/watch?v=2nup6Oizpcw&t=2717s
-        boolean hasValue = fnArgsString.equals(fnArgs);
         List<String> argList = Arrays.asList(args);
         return IntStream.range(0, hasValue ? args.length -1 : args.length)
             .filter(i -> matches(name, letter, argList.get(i), hasValue))
