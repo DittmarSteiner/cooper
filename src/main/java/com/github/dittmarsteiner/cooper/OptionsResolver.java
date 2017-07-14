@@ -53,25 +53,10 @@ import java.util.stream.IntStream;
  */
 public class OptionsResolver {
 
-    // simply returns the Optional if the contained String is not empty
-    private static final Function<String, Optional<String>> fnEnvString =
-            (o) -> !o.isEmpty() ? Optional.of(o) : Optional.empty();
-    //  wraps the String value into an Optional
-    private static final Function<String, Optional<String>> fnArgsString =
-            (v) -> !v.isEmpty() ? Optional.of(v) : Optional.empty();
-
-    // returns true if Optional.get is anything but "false".
-    private static final Function<String, Optional<Boolean>> fnEnvBoolean =
-            (v) -> Optional.of(!"false".equalsIgnoreCase(v));
-    // returns always true since it already passed matches(...)
-    private static final Function<String, Optional<Boolean>> fnArgsBoolean =
-            (v) -> Optional.of(true);
-
     /** 
      * Noting to instatiate here.
      */
-    private OptionsResolver() {
-    }
+    private OptionsResolver() {}
 
     /**
      * Resolves a named value from the environment or commend line.
@@ -81,7 +66,7 @@ public class OptionsResolver {
      *         System.out.println("No name arg");
      *     else
      *         System.out.println("Name: " + name.get());
-     *   
+     * 
      *     int port = OptionsResolver.resolve("PORT", 'p', args)
      *                .map(Integer::parseInt).orElse(8080);
      *     System.out.println("Port: " + port);
@@ -103,7 +88,11 @@ public class OptionsResolver {
      */
     public static Optional<String> resolve(String name, Character letter,
             String... args) {
-        return resolve(name, letter, fnEnvString, fnArgsString, true, args);
+        // wraps the String value into an Optional or empty
+        Function<String, Optional<String>> fn =
+                (v) -> !v.isEmpty() ? Optional.of(v) : Optional.empty();
+
+        return resolve(name, letter, fn, fn, true, args);
     }
 
     /**
@@ -119,7 +108,7 @@ public class OptionsResolver {
      *     Optional<Boolean> verbose = OptionsResolver.resolve("verbose", 'v', args);
      *     System.out.println("I do not yet know what to say. " +
      *              "Some one else might decide on the (empty) Optional<Boolean>.");
-     *   
+     * 
      *     boolean force = OptionsResolver.resolve("force", 'f', args)
      *                     .orElse(false);
      *     System.out.println("Force mode: " + force);
@@ -138,15 +127,21 @@ public class OptionsResolver {
      */
     public static Optional<Boolean> resolveFlag(String name, Character letter,
             String... args) {
-        return resolve(name, letter, fnEnvBoolean, fnArgsBoolean, false, args);
+
+        return resolve(name, letter,
+            // true if the value is anything but "false" (even null or empty)
+            (v) -> Optional.of(!"false".equalsIgnoreCase(v)),
+            // always true because of the simple presence of the flag
+            (v) -> Optional.of(true),
+            false, args);
     }
 
     static <T> Optional<T> resolve(String name, Character letter,
             Function<String, Optional<T>> fnEnv,
-            Function<String, Optional<T>> fnArgs, 
+            Function<String, Optional<T>> fnArgs,
             boolean hasValue, String... args) {
 
-        if (Objects.isNull(args) || 
+        if (Objects.isNull(args) ||
                 (Objects.isNull(name) && Objects.isNull(letter))) {
             return Optional.empty();
         }
