@@ -22,7 +22,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,20 +43,20 @@ public class ConfigBuilderTest {
 
     @Test
     public void testStaticSetProperty() {
-        Optional<String> bar = Config.Builder.set(root, "foo", "bar");
+        Optional<String> bar = Config.Builder.put(root, "foo", "bar");
         assertTrue(bar.isPresent());
         assertThat(bar.get(), is("bar"));
         // check in depth
         assertThat(Config.Builder.get(root, "foo").get(), is("bar"));
 
-        Optional<String> empty = Config.Builder.set(root, "", "Empty");
+        Optional<String> empty = Config.Builder.put(root, "", "Empty");
         assertFalse(empty.isPresent());
 
-        Optional<Number> parent = Config.Builder.set(root, "\nproxy\t. map\r. number   ", 2L);
+        Optional<Number> parent = Config.Builder.put(root, "\nproxy\t. map\r. number   ", 2L);
         assertTrue(parent.isPresent());
         assertThat(parent.get(), is(2L));
 
-        Optional<String> holder = Config.Builder.set(root, "planets.earth.countries.de.capital", "Berlin");
+        Optional<String> holder = Config.Builder.put(root, "planets.earth.countries.de.capital", "Berlin");
         assertTrue(holder.isPresent());
         assertThat(holder.get(), is("Berlin"));
         // re-check
@@ -89,9 +89,9 @@ public class ConfigBuilderTest {
     @Test
     public void testSetReplace() {
         Builder builder = new Builder(root)
-                .set("name", "New name")
-                .set("booleanFalse", true)
-                .set("      nullValue      ", "Not null");
+                .put("name", "New name")
+                .put("booleanFalse", true)
+                .put("      nullValue      ", "Not null");
 
         Config config = builder.build();
         assertThat(config.get("name").get(), equalTo("New name"));
@@ -102,7 +102,7 @@ public class ConfigBuilderTest {
     @Test
     public void testGetOptional() {
         Builder builder = new Builder(root);
-        builder.setOf("proxy.port", Optional.of(8080));
+        builder.putOf("proxy.port", Optional.of(8080));
         Config build = builder.build();
         Optional<Number> port = build.get("proxy.port");
         assertThat(port.get().intValue(), is(8080));
@@ -111,7 +111,7 @@ public class ConfigBuilderTest {
     @Test
     public void testGetOptionalEmpty() {
         Builder builder = new Builder(root);
-        builder.setOf("proxy.port", Optional.empty());
+        builder.putOf("proxy.port", Optional.empty());
         Config build = builder.build();
         Optional<Number> port = build.get("proxy.port");
         // not modified
@@ -120,33 +120,33 @@ public class ConfigBuilderTest {
 
     @Test
     public void testSetNull() {
-        Config config = new Builder(root).set("name", null).build();
+        Config config = new Builder(root).put("name", null).build();
         assertFalse(config.get("name").isPresent());
     }
 
     @Test
     public void testSetNew() {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
         map.put("key", "value");
         List<Object> list = new ArrayList<Object>();
         list.add("element");
 
-        Map<String, Object> uselessRoot = new HashMap<String, Object>();
-        Map<String, Object> uselessChild1 = new HashMap<String, Object>();
-        Map<String, Object> uselessChild2 = new HashMap<String, Object>();
+        Map<String, Object> uselessRoot = new LinkedHashMap<String, Object>();
+        Map<String, Object> uselessChild1 = new LinkedHashMap<String, Object>();
+        Map<String, Object> uselessChild2 = new LinkedHashMap<String, Object>();
         List<Object> uselessList = new ArrayList<Object>();
         uselessChild2.put("uselessList", uselessList);
         uselessChild1.put("uselessChild2", uselessChild2);
         uselessRoot.put("uselessChild1", uselessChild1);
 
         Builder builder = new Builder(root)
-                .set("something", 1L)
-                .set("flag", true)
-                .set("map", map)
-                .set("list", list)
-                .set("emptyMap", new HashMap<String, Object>())
-                .set("emptyList", new ArrayList<Object>())
-                .set("uselessRoot", uselessRoot)
+                .put("something", 1L)
+                .put("flag", true)
+                .put("map", map)
+                .put("list", list)
+                .put("emptyMap", new LinkedHashMap<String, Object>())
+                .put("emptyList", new ArrayList<Object>())
+                .put("uselessRoot", uselessRoot)
             ;
 
         Config config = builder.build();
@@ -167,7 +167,7 @@ public class ConfigBuilderTest {
         Builder builder = new Builder(root);
         assertThat(builder.get(" \t name      ").get(), equalTo("Cooper"));
 
-        builder.set("    name ", "New name");
+        builder.put("    name ", "New name");
         assertThat(builder.get("     name \n").get(), equalTo("New name"));
 
         Config build = builder.build();
@@ -177,7 +177,7 @@ public class ConfigBuilderTest {
     @Test
     public void testSetIfOptional() {
         Builder builder = new Builder(root)
-                .setOf("proxy.map.name", Optional.of("Hawk"));
+                .putOf("proxy.map.name", Optional.of("Hawk"));
         assertThat(builder.get("proxy.map.name").get(), is("Hawk"));
 
         Config build = builder.build();
@@ -187,7 +187,7 @@ public class ConfigBuilderTest {
     @Test
     public void testSetIfOptionalNoParentYet() {
         Builder builder = new Builder(root)
-                .setOf("proxy.alias", Optional.of("Bob"));
+                .putOf("proxy.alias", Optional.of("Bob"));
         assertThat(builder.get("proxy.alias").get(), is("Bob"));
 
         Config build = builder.build();
@@ -197,7 +197,7 @@ public class ConfigBuilderTest {
     @Test
     public void testSetIfOptionalNoParentYetAndIsEmpty() {
         Builder builder = new Builder(root)
-                .setOf("proxy.alias", Optional.empty());
+                .putOf("proxy.alias", Optional.empty());
         assertFalse(builder.get("proxy.alias").isPresent());
 
         Config build = builder.build();
@@ -207,7 +207,7 @@ public class ConfigBuilderTest {
     @Test
     public void testSetIfOptionalNoParentYetAndNull() {
         Builder builder = new Builder(root)
-                .setOf("proxy.alias", null);
+                .putOf("proxy.alias", null);
         assertFalse(builder.get("proxy.alias").isPresent());
 
         Config build = builder.build();
@@ -217,7 +217,7 @@ public class ConfigBuilderTest {
     @Test
     public void testSetIfOptionalEmpty() {
         Builder builder = new Builder(root)
-                .setOf("proxy.map.name", Optional.empty());
+                .putOf("proxy.map.name", Optional.empty());
         assertThat(builder.get("proxy.map.name").get(), is("Harry"));
 
         Config build = builder.build();
@@ -227,7 +227,7 @@ public class ConfigBuilderTest {
     @Test
     public void testSetIfOptionalNull() {
         Builder builder = new Builder(root)
-                .setOf("proxy.map.name", null);
+                .putOf("proxy.map.name", null);
         assertThat(builder.get("proxy.map.name").get(), is("Harry"));
 
         Config build = builder.build();
@@ -237,7 +237,7 @@ public class ConfigBuilderTest {
     @Test
     public void testSetIfOptionalEmptyNoParentYet() {
         Builder builder = new Builder(root)
-                .setOf("proxy.alias", Optional.empty());
+                .putOf("proxy.alias", Optional.empty());
         assertFalse(builder.get("proxy.alias").isPresent());
 
         Config build = builder.build();
@@ -270,7 +270,7 @@ public class ConfigBuilderTest {
 
     @Test
     public void testMapHasNotKey() {
-        Builder builder = new Builder(root).set("proxy.noValue", null);
+        Builder builder = new Builder(root).put("proxy.noValue", null);
         Optional<Map<String, Object>> proxy = builder.get("proxy");
         // did not even add the key
         assertFalse(proxy.get().containsKey("noValue"));

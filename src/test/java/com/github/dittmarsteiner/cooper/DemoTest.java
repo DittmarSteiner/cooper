@@ -27,7 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,17 +64,17 @@ public class DemoTest {
 
         Config config = new Config.Builder(demo)
                 // 1) will add or replace if present, but not nullify
-                .setOf("name", name)
+                .putOf("name", name)
                 // 2) will add or replace if present, but not nullify
-                .setOf("alias", alias)
+                .putOf("alias", alias)
                 // 3) will forcefully add or replace, even nullify!
-                .set("proxy.user", proxyUser)
+                .put("proxy.user", proxyUser)
                 // 4) will add or replace if present, but not nullify
-                .setOf("proxy.threads", threads)
+                .putOf("proxy.threads", threads)
                 // 5) will set only if not yet set in config, no overwrite
-                .setIfEmpty("proxy.port", PROXY_PORT)
+                .putIfEmpty("proxy.port", PROXY_PORT)
                 // 6) will add or replace if present, but not nullify
-                .setOf("debug-mode", debugMode)
+                .putOf("debug-mode", debugMode)
                 .build();
 
         assertThat(config.get("name").get(), is("Dale")); // not modified
@@ -109,8 +109,8 @@ public class DemoTest {
 
         Builder builder = new Builder(root)
                 // ensure defaults if not yet set
-                .setIfEmpty("name", NAME)              // exists, no replace
-                .setIfEmpty("proxy.name", PROXY_NAME); // will be added
+                .putIfEmpty("name", NAME)              // exists, no replace
+                .putIfEmpty("proxy.name", PROXY_NAME); // will be added
 
         // not replaced because Cooper was already there
         assertThat(builder.get("name").get(), is("Cooper"));
@@ -123,9 +123,9 @@ public class DemoTest {
         String proxyAlias = "Maggie"; // like System.getProperty("proxy.alias")
 
         Config config = builder
-                .set("name", name)
-                .set("proxy.name", proxyName)
-                .set("proxy.alias", proxyAlias)
+                .put("name", name)
+                .put("proxy.name", proxyName)
+                .put("proxy.alias", proxyAlias)
                 .build();
 
         // replaced
@@ -147,8 +147,8 @@ public class DemoTest {
 
         Builder builder = new Builder(root)
                 // ensure defaults if not yet exist
-                .setIfEmpty("name", NAME)              // exists, no replace
-                .setIfEmpty("proxy.name", PROXY_NAME); // will be added
+                .putIfEmpty("name", NAME)              // exists, no replace
+                .putIfEmpty("proxy.name", PROXY_NAME); // will be added
 
         // not replaced because Cooper already exists
         assertThat(builder.get("name").get(), is("Cooper"));
@@ -162,10 +162,10 @@ public class DemoTest {
         Optional<Number> proxyPort = Optional.empty();       // like resolve("proxy.port")
 
         Config config = builder
-                .setOf("name", name)              // will be replaced
-                .setOf("proxy.name", proxyName)   // will be added
-                .setOf("proxy.alias", proxyAlias) // will be added
-                .setOf("proxy.port", proxyPort)   // will stay, because of empty
+                .putOf("name", name)              // will be replaced
+                .putOf("proxy.name", proxyName)   // will be added
+                .putOf("proxy.alias", proxyAlias) // will be added
+                .putOf("proxy.port", proxyPort)   // will stay, because of empty
                 .build();
 
         // replaced
@@ -228,9 +228,9 @@ public class DemoTest {
 
             // create a builder and customize values
             Config.Builder builder = new Config.Builder(map)
-                    .set("name", "Bob")
-                    .set("proxy.port", 80)
-                    .set("notYetPresent", "New Value");
+                    .put("name", "Bob")
+                    .put("proxy.port", 80)
+                    .put("notYetPresent", "New Value");
 
             // manipulate a list
             Optional<List<Integer>> op = builder.get("proxy.params");
@@ -280,9 +280,9 @@ public class DemoTest {
     public void initMap() {
         root = ConfigTest.createMap();
 
-        demo = new HashMap<>();
+        demo = new LinkedHashMap<>();
         demo.put("name", "Dale");
-        Map<String, Object> demoProxy = new HashMap<>();
+        Map<String, Object> demoProxy = new LinkedHashMap<>();
         demoProxy.put("user", "David");
         demoProxy.put("port", 9999);
         demo.put("proxy", demoProxy);

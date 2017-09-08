@@ -41,11 +41,11 @@
  * // adjust the config
  * Config config = new Config.Builder(map)
  *     // will add or replace the target, but not nullify
- *     .setOf("name", optionalName)
+ *     .putOf("name", optionalName)
  *     // will add the target, but not overwrite existing
- *     .setIfEmpty("alias", alias)
+ *     .putIfEmpty("alias", alias)
  *     // will add or replace the target; or delete it if proxyThreads is 'null'
- *     .set("proxy.threads", proxyThreads)
+ *     .put("proxy.threads", proxyThreads)
  *     .build();
  * 
  * // ----------------------------------------------------------------

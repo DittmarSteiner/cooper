@@ -23,7 +23,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,7 +69,7 @@ public class Config {
     public Config(Map<String, Object> root) {
         Objects.requireNonNull(root, "The root map cannot be null");
 
-        Map<String, Object> cache = new HashMap<>();
+        Map<String, Object> cache = new LinkedHashMap<>();
         this.root = unmodifiable(root, "", cache);
         this.cache = Collections.unmodifiableMap(cache);
     }
@@ -126,7 +126,7 @@ public class Config {
 
     static Map<String, Object> unmodifiable(Map<String, Object> map,
             String path, Map<String, Object> cache) {
-        Map<String, Object> copy = new HashMap<>(map.size(), 1.0f);
+        Map<String, Object> copy = new LinkedHashMap<>(map.size(), 1.0f);
         map.entrySet().stream()
             .map(e -> wrap(e, path, cache))
             .filter(Objects::nonNull)
@@ -195,21 +195,21 @@ public class Config {
      * <pre>{@code
      * Config config = new Config.Builder(map)
      *         // 1) will add or replace the target property
-     *         .setOf("name", Optional.of("Cooper"))
+     *         .putOf("name", Optional.of("Cooper"))
      *         // 2) will add or replace with a Boolean
-     *         .setOf("debug-mode", Optional.of(true))
+     *         .putOf("debug-mode", Optional.of(true))
      *         // 3) will add or replace with an Integer
-     *         .setOf("proxy.threads", Optional.of(8))
+     *         .putOf("proxy.threads", Optional.of(8))
      *         // 4) will keep the target property, does not nullify/delete
-     *         .setOf("alias", null)
+     *         .putOf("alias", null)
      *         // 5) will keep the target property, does not nullify/delete
-     *         .setOf("alias", Optional.empty())
+     *         .putOf("alias", Optional.empty())
      *         // 6) will add or forcefully replace the target property
-     *         .set("proxy.user", "Bob")
+     *         .put("proxy.user", "Bob")
      *         // 7) will delete the target property (not only nullify)
-     *         .set("proxy.user", null)
+     *         .put("proxy.user", null)
      *         // 8) will only add if target property if not yet present (does not overwrite)
-     *         .setIfEmpty("proxy.port", 7777)
+     *         .putIfEmpty("proxy.port", 7777)
      *         .build();
      * }</pre>
      * 
@@ -292,11 +292,11 @@ public class Config {
          *            the value to set, {@code null} will delete the property
          * @return itself
          * 
-         * @see #setOf(String, Optional)
-         * @see #setIfEmpty(String, Object)
+         * @see #putOf(String, Optional)
+         * @see #putIfEmpty(String, Object)
          */
-        public <T> Builder set(String propertyPath, T value) {
-            set(root, propertyPath, value);
+        public <T> Builder put(String propertyPath, T value) {
+            put(root, propertyPath, value);
 
             return this;
         }
@@ -311,12 +311,12 @@ public class Config {
          *            the value to set. If {@code null} nothing will happen
          * @return itself
          * 
-         * @see #setOf(String, Optional)
-         * @see #set(String, Object)
+         * @see #putOf(String, Optional)
+         * @see #put(String, Object)
          */
-        public <T> Builder setIfEmpty(String propertyPath, T value) {
+        public <T> Builder putIfEmpty(String propertyPath, T value) {
             if (!get(propertyPath).isPresent() && value != null) {
-                set(root, propertyPath, value);
+                put(root, propertyPath, value);
             }
 
             return this;
@@ -335,18 +335,18 @@ public class Config {
          *            if {@code null} or empty, nothing will happen
          * @return itself
          * 
-         * @see #setIfEmpty(String, Object)
-         * @see #set(String, Object)
+         * @see #putIfEmpty(String, Object)
+         * @see #put(String, Object)
          */
-        public <T> Builder setOf(String propertyPath, Optional<T> optional) {
+        public <T> Builder putOf(String propertyPath, Optional<T> optional) {
             if (optional != null && optional.isPresent()) {
-                set(root, propertyPath, optional.get());
+                put(root, propertyPath, optional.get());
             }
 
             return this;
         }
 
-        static <T> Optional<T> set(Map<String, Object> map, String propertyPath,
+        static <T> Optional<T> put(Map<String, Object> map, String propertyPath,
                 T value) {
             try {
                 // avoid creating a map path without setting a value
@@ -359,7 +359,7 @@ public class Config {
                 String[] parent = Arrays.copyOf(path, path.length -1);
                 String key = path[path.length -1];
 
-                return Optional.of(set(map, parent, 0, key, value));
+                return Optional.of(put(map, parent, 0, key, value));
             }
             catch (Throwable th) {
                 return Optional.empty();
@@ -374,10 +374,10 @@ public class Config {
          * @param key
          * @param value
          * @return for test reasons
-         *         {@link Config.Builder#set(Map, String, Object)}
+         *         {@link Config.Builder#put(Map, String, Object)}
          */
         @SuppressWarnings("unchecked")
-        private static <T> T set(Map<String, Object> map, String[] path,
+        private static <T> T put(Map<String, Object> map, String[] path,
                 int index, String key, T value) {
             if (path.length == 0 || index == path.length) {
                 map.put(key, value);
@@ -387,11 +387,11 @@ public class Config {
             Map<String, Object> parent =
                     (Map<String, Object>) map.get(path[index]);
             if (parent == null) {
-                parent = new HashMap<>();
+                parent = new LinkedHashMap<>();
                 map.put(path[index], parent);
             }
 
-            return set(parent, path, ++index, key, value);
+            return put(parent, path, ++index, key, value);
         }
 
         /**
@@ -416,7 +416,7 @@ public class Config {
 
         static Map<String, Object> modifiable(Map<String, Object> map) {
             Map<String, Object> copy =
-                    new HashMap<String, Object>(map.size(), 1.0f);
+                    new LinkedHashMap<String, Object>(map.size(), 1.0f);
             map.entrySet().stream().forEach(e ->
                 copy.put(e.getKey(), modifiable(e.getValue())));
 

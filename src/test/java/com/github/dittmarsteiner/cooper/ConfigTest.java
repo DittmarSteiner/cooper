@@ -22,7 +22,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,7 +42,7 @@ public class ConfigTest {
     }
 
     public static Map<String, Object> createMap() {
-        Map<String, Object> root = new HashMap<>();
+        Map<String, Object> root = new LinkedHashMap<>();
         root.put("name", "Cooper");
 
         root.put("booleanFalse", false);
@@ -55,11 +55,11 @@ public class ConfigTest {
 
         root.put("nullValue", null);
 
-        Map<String, Object> proxy = new HashMap<>();
+        Map<String, Object> proxy = new LinkedHashMap<>();
         proxy.put("port", 9999);
         List<Object> params = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
         proxy.put("params", params);
-        Map<String, Object> proxyMap = new HashMap<>();
+        Map<String, Object> proxyMap = new LinkedHashMap<>();
         proxyMap.put("number", 1L);
         proxyMap.put("name", "Harry");
         proxy.put("map", proxyMap);
@@ -195,7 +195,7 @@ public class ConfigTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testUnmodifiableMapOfStringObject() {
-        Map<String, Object> cache = new HashMap<>();
+        Map<String, Object> cache = new LinkedHashMap<>();
         Map<String, Object> root = Config.unmodifiable(this.root, "", cache);
 
         try {
