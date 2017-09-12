@@ -48,7 +48,7 @@ import java.util.Set;
  * Use the {@link Builder Config.Builder} to customize your {@code Map} before
  * building an unmodifiable {@code Config}.
  * 
- * @version 1.0
+ * @version 1.1
  * 
  * @author <a href="mailto:dittmar.steiner@gmail.com">Dittmar Steiner</a>
  * 
@@ -213,7 +213,7 @@ public class Config {
      *         .build();
      * }</pre>
      * 
-     * @version 1.0
+     * @version 1.1
      * 
      * @author <a href="mailto:dsteiner@aptly.de">Dittmar Steiner</a>
      * 
