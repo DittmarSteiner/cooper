@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017, Dittmar Steiner <dittmar.steiner@gmail.com>
+ * ISC License http://opensource.org/licenses/isc-license.txt
+ */
 package com.github.dittmarsteiner.cooper;
 
 import static org.hamcrest.CoreMatchers.*;
