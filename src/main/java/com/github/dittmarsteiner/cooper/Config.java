@@ -7,8 +7,7 @@ package com.github.dittmarsteiner.cooper;
 import static java.util.stream.Collectors.*;
 
 import java.util.*;
-import java.util.AbstractMap.SimpleEntry;
-
+import java.util.AbstractMap.SimpleImmutableEntry;
 /**
  * {@code Config} is a smart and fast wrapper of a {@link Map Map&lt;String,
  * Object>} and provides easy access to all (hierarchical) entries via paths
@@ -105,14 +104,13 @@ public class Config {
 
     static Map<String, Object> unmodifiable(Map<String, Object> map,
             String path, Map<String, Object> cache) {
-        Map<String, Object> copy = new LinkedHashMap<>(map.size(), 1.0f);
-        map.entrySet().stream()
+        return map.entrySet().stream()
             .map(e -> wrap(e, path, cache))
             .filter(Objects::nonNull)
             .map(Map.Entry::getValue) // unwrap
-            .forEach(e -> copy.put(e.getKey(), e.getValue()));
-
-        return !copy.isEmpty() ? Collections.unmodifiableMap(copy) : null;
+            .collect(collectingAndThen(
+                    toMap(Map.Entry::getKey, Map.Entry::getValue),
+                    Collections::unmodifiableMap));
     }
 
     private static Map.Entry<String, Map.Entry<String, Object>> wrap(
@@ -127,22 +125,26 @@ public class Config {
             return null;
         }
 
-        // would look like {"name": "Harry"}
-        Map.Entry<String, Object> value = new SimpleEntry<String, Object>(
-                entry.getKey(), unmodifiable);
-        cache.put(pathExt, value.getValue());
+        // cache entry would look like {"proxy.map.name": {"name": "Harry"}}
+        cache.put(pathExt, unmodifiable);
 
-        // would look like {"proxy.map.name": {"name": "Harry"}}
-        return new SimpleEntry<String, Map.Entry<String, Object>>(pathExt,
-                value);
+        // root entry would look like {"name": "Harry"}
+        Map.Entry<String, Object> value = entry(entry.getKey(), unmodifiable);
+
+        return entry(pathExt, value);
+    }
+
+    static <V> Map.Entry<String, V> entry(String key, V value) {
+        return new SimpleImmutableEntry<String, V>(
+                key, value);
     }
 
     static List<Object> unmodifiable(List<Object> list, String path,
             Map<String, Object> cache) {
-        List<Object> copy = list.stream().map(e -> unmodifiable(e, path, cache))
-                .filter(Objects::nonNull).collect(toList());
-
-        return !copy.isEmpty() ? Collections.unmodifiableList(copy) : null;
+        return list.stream().map(e -> unmodifiable(e, path, cache))
+                .filter(Objects::nonNull)
+                .collect(collectingAndThen(toList(),
+                        Collections::unmodifiableList));
     }
 
     @SuppressWarnings("unchecked")
