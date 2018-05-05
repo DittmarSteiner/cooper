@@ -26,7 +26,7 @@ import java.util.AbstractMap.SimpleImmutableEntry;
  * Use the {@link Builder Config.Builder} to customize your {@code Map} before
  * building an unmodifiable {@code Config}.
  * 
- * @version 1.1
+ * @version 1.1.1
  * 
  * @author <a href="mailto:dittmar.steiner@gmail.com">Dittmar Steiner</a>
  * 
@@ -194,7 +194,7 @@ public class Config {
      *         .build();
      * }</pre>
      * 
-     * @version 1.1
+     * @version 1.1.1
      * 
      * @author <a href="mailto:dsteiner@aptly.de">Dittmar Steiner</a>
      * 
@@ -206,13 +206,44 @@ public class Config {
         /**
          * Creates a modifialbe deep copy of the given {@link Map}.
          * 
-         * @param root
+         * @param srcMap
          *            the underlying tree structure ({@code Map}s, {@code List}s and
          *            any type in a root {@code Map})
          */
-        public Builder(Map<String, Object> root) {
-            Objects.requireNonNull(root, "The root map cannot be null");
-            this.root = modifiable(root);
+        public Builder(Map<String, Object> srcMap) {
+            if (srcMap != null) {
+                root = modifiable(srcMap);
+            }
+            else {
+                root = new LinkedHashMap<String, Object>();
+            }
+        }
+
+        /**
+         * Creates a modifialbe &quot;deep&quot; copy of the given
+         * {@link Properties}, following the dot separated paths;
+         * 
+         * @param srcProperties
+         *            the underlying tree structure ({@code Map}s, {@code List}s
+         *            and any type in a root {@code Map})
+         * @since 1.1.1
+         */
+        public Builder(Properties  srcProperties) {
+            root = new LinkedHashMap<String, Object>();
+
+            if (srcProperties != null) {
+                srcProperties.keySet()
+                             .stream()
+                             .forEach(k ->
+                                put((String) k, srcProperties.get(k)));
+            }
+        }
+
+        /**
+         * @version 1.1.1
+         */
+        public Builder() {
+            root = new LinkedHashMap<String, Object>();
         }
 
         /**

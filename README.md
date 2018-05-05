@@ -3,13 +3,18 @@
 _Cooper_ is a set of utilities, usually useful during an application’s init phase. 
 Since all classes have no external dependencies or depend on each other, feel free to simply copy the desired `*.java` files into your project.
 
+#### Version 1.1.1
+
+_API improvement:_ now supporting `new Config.Builder(Properties properties)`.
+
 #### Version 1.1
 
 _API change:_ moved from `.set*(key, value)` to correctly named `put*(key, value)` modifier method in the `ConfigBuilder`.
 
-#### Complete example
+### Complete example
 
 Also see [Javadoc](https://dittmarsteiner.github.io/cooper/)
+
 
 ```Java
 // some defaults

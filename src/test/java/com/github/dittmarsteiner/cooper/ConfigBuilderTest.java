@@ -46,16 +46,6 @@ public class ConfigBuilderTest {
     }
 
     @Test
-    public void testBuilderNullRoot() {
-        try {
-            @SuppressWarnings("unused")
-            Builder builder = new Builder(null);
-            fail("NullPointerException expected");
-        }
-        catch (NullPointerException e) { }
-    }
-
-    @Test
     public void testBuild() {
         Config config = new Builder(root).build();
         assertThat(config.get("name").get(), equalTo(root.get("name")));
@@ -64,6 +54,20 @@ public class ConfigBuilderTest {
         assertThat(config.get("proxy").get(), equalTo(root.get("proxy")));
         assertFalse(config.get("nullValue").isPresent());
         // we skip the rest…
+    }
+
+    @Test
+    public void testBuildOnProperties() {
+        Properties props = new Properties();
+        props.setProperty("user.name", "Cooper");
+        props.setProperty("user.password", "Owls");
+
+        Config config = new Builder(props).build();
+        assertTrue(config.get("user").isPresent());
+        assertThat(config.get("user").get(), is(instanceOf(Map.class)));
+        assertThat(config.get("user.name").get(), equalTo("Cooper"));
+        assertThat(config.get("user.password").get(), equalTo("Owls"));
+        assertFalse(config.get("nullValue").isPresent());
     }
 
     @Test
