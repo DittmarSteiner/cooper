@@ -26,7 +26,7 @@ import java.util.AbstractMap.SimpleImmutableEntry;
  * Use the {@link Builder Config.Builder} to customize your {@code Map} before
  * building an unmodifiable {@code Config}.
  * 
- * @version 1.1.1
+ * @version 1.1.2
  * 
  * @author <a href="mailto:dittmar.steiner@gmail.com">Dittmar Steiner</a>
  * 
@@ -43,6 +43,7 @@ public class Config {
      * @param root
      *            the underlying tree structure ({@code Map}s, {@code List}s and
      *            any type in a root {@code Map})
+     * @since 1.0
      */
     public Config(Map<String, Object> root) {
         Objects.requireNonNull(root, "The root map cannot be null");
@@ -50,6 +51,21 @@ public class Config {
         Map<String, Object> cache = new LinkedHashMap<>();
         this.root = unmodifiable(root, "", cache);
         this.cache = Collections.unmodifiableMap(cache);
+    }
+
+    /**
+     * 
+     * @param properties
+     * @since 1.1.2
+     */
+    public Config(Properties properties) {
+        this(newBuilder(properties));
+    }
+
+    static Map<String, Object> newBuilder(Properties properties) {
+        Objects.requireNonNull(properties, "The properties cannot be null");
+
+        return new Builder(properties).root;
     }
 
     /**
@@ -209,6 +225,7 @@ public class Config {
          * @param srcMap
          *            the underlying tree structure ({@code Map}s, {@code List}s and
          *            any type in a root {@code Map})
+         * @since 1.0
          */
         public Builder(Map<String, Object> srcMap) {
             if (srcMap != null) {
@@ -240,7 +257,7 @@ public class Config {
         }
 
         /**
-         * @version 1.1.1
+         * @since 1.1.1
          */
         public Builder() {
             root = new LinkedHashMap<String, Object>();

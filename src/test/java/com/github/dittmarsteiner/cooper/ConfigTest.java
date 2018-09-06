@@ -47,14 +47,23 @@ public class ConfigTest {
         return root;
     }
 
-    // TODO Javadoc
-    // TODO README.md
-
     @Test
     public void testConfigNullRoot() {
         try {
+            Map<String, Object> root = null;
             @SuppressWarnings("unused")
-            Config config = new Config(null);
+            Config config = new Config(root);
+            fail("NullPointerException expected");
+        }
+        catch (NullPointerException e) { }
+    }
+
+    @Test
+    public void testConfigNullProperties() {
+        try {
+            Properties properties = null;
+            @SuppressWarnings("unused")
+            Config config = new Config(properties);
             fail("NullPointerException expected");
         }
         catch (NullPointerException e) { }

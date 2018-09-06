@@ -37,7 +37,7 @@ import java.util.stream.IntStream;
 public class OptionsResolver {
 
     /** 
-     * Noting to instatiate here.
+     * Nothing to instatiate here.
      */
     private OptionsResolver() {}
 
