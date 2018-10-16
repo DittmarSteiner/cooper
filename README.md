@@ -3,7 +3,11 @@
 _Cooper_ is a set of utilities, usually useful during an application’s init phase. 
 Since all classes have no external dependencies or depend on each other, feel free to simply copy the desired `*.java` files into your project.
 
-#### Version 1.1.1
+#### Version 1.1.3
+
+Dependency updates, pulgin updates.
+
+#### Version 1.1.2
 
 _API improvement:_ now supporting `new Config.Builder(Properties properties)`.
 
