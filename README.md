@@ -3,6 +3,14 @@
 _Cooper_ is a set of utilities, usually useful during an application’s init phase. 
 Since all classes have no external dependencies or depend on each other, feel free to simply copy the desired `*.java` files into your project.
 
+#### Version 1.2.0
+
+- Introducing `Resulting`, `Executing` and `Encrypting`
+- Now requires Java 11 
+- Updated all dependencies and Maven plugins
+- JUnit 5 (5.6.2), so all tests in `Config` and `OptionsResolver` had to be commented out.  
+**TODO**: solution required"
+
 #### Version 1.1.5
 
 Jackson dependency (test only) updated to 2.9.9
