@@ -4,54 +4,51 @@
  */
 package com.github.dittmarsteiner.cooper;
 
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import static java.util.Objects.*;
 
 /**
- * <p>A container inspired by <code>Either</code> or <code>Try</code> and
- * {@link java.util.Optional Optional}.
- * Since {@link java.util.Optional Optional} does not include {@link Exception}s
+ * <p>A {@link Resulting} has either a value OR an error. A container class
+ * inspired by <code>Either</code> or <code>Try</code> and
+ * {@link java.util.Optional Optional}. Since {@link java.util.Optional
+ * Optional} does not include {@link Exception}s
  * and other implementations just want too much, {@link Resulting} might be a
- * handy container. {@link Resulting} has either a value OR an error. For more
- * sophisticated features like filter, map or stream, you can store the
- * {@link Resulting} into an {@link java.util.Optional Optional}.
+ * handy container. For more sophisticated features like filter, map or
+ * stream, you can use
+ * {@link Resulting#ofValue(Object)} or {@link Resulting#ofError(Throwable)}.
  * </p>
  *
  * <b>Usage as a return type:</b>
  * <pre>{@code
- * public Resulting<String> someMethodResultingThatCanFail() {
- *    Resulting resulting;
+ * public Resulting<String> someMethodThatCanFail() {
  *    try {
- *        resulting = Resulting.ofValue(returnsAStringButCanFail());
+ *        return Resulting.ofValue(returnsAStringButCanItFail());
  *    }
  *    catch (Throwable e) {
- *        resulting = Resulting.ofError(e);
+ *        return Resulting.ofError(e);
  *    }
- *
- *    return resulting;
  * }
  * }</pre>
  *
  * <b>Usage of the return value</b>
  * <pre>{@code
- * // simple
- * Resulting<String> resulting1 = someMethodResultingThatCanFail();
- * String str1 = resulting1.isValue() ? resulting1.orElseThrow() : "not found";
+ * // simple - may re-throw the contained Throwable as RuntimeException if value is missing
+ * String str = someMethodThatCanFail().value();
  *
- * // risky
- * String str2 = someMethodResultingThatCanFail().orElseThrow();
+ * // classic
+ * String str1 = someMethodThatCanFail().isValue() ? resulting1.value() : "not found";
  *
- * // advanced
- * var resulting2 = someMethodResultingThatCanFail();
- * String str3;
- * if (resulting2.isValue()) {
- *     str3 = resulting2.orElseThrow();
- * }
- * else {
- *     LOG.warn(resulting2.getError().getMessage());
- *     str3 = "not found";
- * }
+ * // utilizing Optional
+ * String str2 = someMethodThatCanFail().optValue().orElse("not found");
+ *
+ * // utilizing Optional map
+ * int count = someMethodThatCanFail().optValue().map(Integer::valueOf).orElse(0);
+ *
+ * // utilizing Optional for Exception handling
+ * Resulting<String> resulting = someMethodThatCanFail();
+ * resulting.optError().ifPresent(this::log); // void log(Throwable e) {...}
+ * var value = resulting.optValue() ...
  * }</pre>
  *
  * @param <T> whatever
@@ -90,7 +87,7 @@ public class Resulting<T> {
      * semantics is wrong, but the logging is easier since we already have a
      * {@code throwable}…
      */
-    public T orElseThrow()  throws RuntimeException {
+    public T value() throws RuntimeException {
         if (value != null) {
             return value;
         }
@@ -102,11 +99,31 @@ public class Resulting<T> {
      * @return if {@code throwable} is present
      * @throws NoSuchElementException if {@code throwable} is not present
      */
-    public RuntimeException getError() throws NoSuchElementException {
+    public RuntimeException error() throws NoSuchElementException {
         if (value != null) {
             throw new NoSuchElementException("No throwable present");
         }
         return asRuntimeException(throwable);
+    }
+
+    /**
+     * {@code Optional.ofNullable(value)} does not throw a {@link
+     * RuntimeException}, but you migth ignore it.
+     *
+     * @return {@code value} wrapped
+     */
+    public Optional<T> optValue() {
+        return Optional.ofNullable(value);
+    }
+
+    /**
+     * {@code Optional.ofNullable(throwable)} does not throw a {@link
+     * RuntimeException}, but you migth ignore it.
+     *
+     * @return {@code value} wrapped
+     */
+    public Optional<? extends Throwable> optError() {
+        return Optional.ofNullable(throwable);
     }
 
     /**
@@ -132,7 +149,7 @@ public class Resulting<T> {
      */
     public static <T> Resulting<T> ofError(Throwable throwable)
             throws NullPointerException {
-        return new Resulting<>(
+        return new Resulting<T>(
                 null,
                 requireNonNull(throwable, "throwable must be present"));
     }

@@ -19,7 +19,7 @@ class ExecutingTest {
     void echoExample() {
         var what = "Hi, there!";
         var echoed =
-                Executing.call(new String[]{"echo", "-n", what}).orElseThrow();
+                Executing.call(new String[]{"echo", "-n", what}).value();
         assertEquals(what, echoed);
         assertNotSame(what, echoed);
     }
@@ -31,10 +31,10 @@ class ExecutingTest {
         var there = "There";
         var base64 =
                 Executing.call(there, new String[]{"base64", "-w", "0"})
-                         .orElseThrow();
+                         .value();
         var andBackAgain =
                 Executing.call(base64, new String[]{"base64", "-d"})
-                         .orElseThrow();
+                         .value();
         assertEquals(there, andBackAgain);
         assertNotSame(there, andBackAgain);
     }
@@ -55,7 +55,7 @@ class ExecutingTest {
                     "bash", "-c",
                     "gzip -9 | base64 -w 0"
                 }
-            ).orElseThrow();
+            ).value();
 
         var andBackAgain =
             Executing.call(
@@ -65,7 +65,7 @@ class ExecutingTest {
                     "bash", "-c",
                     "base64 -d | gzip -d"
                 }
-            ).orElseThrow();
+            ).value();
 
         assertEquals(there, andBackAgain);
         assertNotSame(there, andBackAgain);
@@ -84,14 +84,14 @@ class ExecutingTest {
                 Executing::toBase64Url,
                  new String[]{"bash", "-c", "gzip -9 | openssl aes-256-cbc -pbkdf2 -salt -k " + password}
         );
-        var urlEncoded = enc.orElseThrow();
+        var urlEncoded = enc.value();
 
         var dec = Executing.call(
                 () -> Executing.fromBase64Url(urlEncoded),
                 Executing::toString,
                  new String[]{"bash", "-c", "openssl aes-256-cbc -pbkdf2 -d -k " + password + " | gzip -d"}
         );
-        var output = dec.orElseThrow();
+        var output = dec.value();
         assertEquals(input, output);
     }
 

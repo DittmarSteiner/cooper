@@ -57,7 +57,7 @@ public class Encrypting {
                 }
         );
 
-        return enc.orElseThrow();
+        return enc.value();
     }
 
     /**
@@ -94,7 +94,7 @@ public class Encrypting {
                 }
         );
 
-        return dec.orElseThrow();
+        return dec.value();
     }
 
     public static String sha1sum(String value) throws RuntimeException {
@@ -114,7 +114,7 @@ public class Encrypting {
 
         try {
             var sum = call(value, sha1sum);
-            return sum.orElseThrow()
+            return sum.value()
                       .replaceAll("[ -]+$", "").strip();
         }
         catch (Throwable e) {
