@@ -5,14 +5,14 @@
 package com.github.dittmarsteiner.cooper;
 
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.dittmarsteiner.cooper.Config.Builder;
 import org.junit.jupiter.api.*;
+
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
 
 public class DemoTest {
 

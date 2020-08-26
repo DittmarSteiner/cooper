@@ -4,10 +4,10 @@
  */
 package com.github.dittmarsteiner.cooper;
 
-import static java.util.stream.Collectors.*;
-
-import java.util.*;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.*;
+
+import static java.util.stream.Collectors.*;
 /**
  * {@code Config} is a smart and fast wrapper of a {@link Map Map&lt;String,
  * Object>} and provides easy access to all (hierarchical) entries via paths
