@@ -14,9 +14,8 @@ import static java.util.Objects.*;
  * {@link java.util.Optional Optional}. Since {@link java.util.Optional
  * Optional} does not include {@link Exception}s
  * and other implementations just want too much, {@link Resulting} might be a
- * handy container. For more sophisticated features like filter, map or
- * stream, you can use
- * {@link Resulting#ofValue(Object)} or {@link Resulting#ofError(Throwable)}.
+ * handy container. For more sophisticated handling with {@link Optional}
+ * use {@link #optValue()} or {@link #optError()}.
  * </p>
  *
  * <b>Usage as a return type:</b>
@@ -34,7 +33,7 @@ import static java.util.Objects.*;
  * <b>Usage of the return value</b>
  * <pre>{@code
  * // simple - may re-throw the contained Throwable as RuntimeException if value is missing
- * String str = someMethodThatCanFail().value();
+ * String str = someMethodThatCanFail().value(); // can throw a RuntimeException
  *
  * // classic
  * String str1 = someMethodThatCanFail().isValue() ? resulting1.value() : "not found";
@@ -149,7 +148,7 @@ public class Resulting<T> {
      */
     public static <T> Resulting<T> ofError(Throwable throwable)
             throws NullPointerException {
-        return new Resulting<T>(
+        return new Resulting<>(
                 null,
                 requireNonNull(throwable, "throwable must be present"));
     }

@@ -47,14 +47,10 @@ public class Encrypting {
         }
 
         var enc = Executing.call(
-                data,
+                () -> data,
                 Executing::toBase64Url,
-                new String[]{
-                        "bash",
-                        "-c",
-                        "gzip -9 | openssl aes-256-cbc -pbkdf2 -salt -k " +
-                        new String(password)
-                }
+                "bash", "-c",
+                "gzip -9 | openssl aes-256-cbc -pbkdf2 -salt -k " + new String(password)
         );
 
         return enc.value();
@@ -86,12 +82,8 @@ public class Encrypting {
         var dec = call(
                 () -> Executing.fromBase64Url(bas64UrlEncoded),
                 Executing::toString,
-                new String[]{
-                        "bash",
-                        "-c",
-                        "openssl aes-256-cbc -pbkdf2 -d -k " + new String(password) +
-                        " | gzip -d"
-                }
+                "bash", "-c",
+                "openssl aes-256-cbc -pbkdf2 -d -k " + new String(password) + " | gzip -d"
         );
 
         return dec.value();
@@ -110,10 +102,8 @@ public class Encrypting {
     }
 
     static String sha(String sha, String value) throws RuntimeException {
-        String[] sha1sum = { sha };
-
         try {
-            var sum = call(value, sha1sum);
+            var sum = call(() -> value, sha);
             return sum.value()
                       .replaceAll("[ -]+$", "").strip();
         }
